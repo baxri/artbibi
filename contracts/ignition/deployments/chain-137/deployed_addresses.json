@@ -1,0 +1,6 @@
+{
+  "ProxyModule#Demo": "0x89fD769D38f08AB510f786279da1288E066f419f",
+  "ProxyModule#TransparentUpgradeableProxy": "0x50DD68363Ef168e8E7586588e8aE06B78C530043",
+  "ProxyModule#ProxyAdmin": "0xa4eA2678588a258d04F47E6aBa0c9caa89957951",
+  "DemoModule#Demo": "0x50DD68363Ef168e8E7586588e8aE06B78C530043"
+}
