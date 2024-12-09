@@ -3,7 +3,7 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 export const proxyModule = buildModule("ProxyModule", (m) => {
   const proxyAdminOwner = m.getAccount(0);
 
-  const demo = m.contract("Demo");
+  const demo = m.contract("NFTCollection");
 
   const proxy = m.contract("TransparentUpgradeableProxy", [
     demo,
@@ -22,10 +22,10 @@ export const proxyModule = buildModule("ProxyModule", (m) => {
   return { proxyAdmin, proxy };
 });
 
-const demoModule = buildModule("DemoModule", (m) => {
+const demoModule = buildModule("NFTCollectionModule", (m) => {
   const { proxy, proxyAdmin } = m.useModule(proxyModule);
 
-  const demo = m.contractAt("Demo", proxy);
+  const demo = m.contractAt("NFTCollection", proxy);
 
   return { demo, proxy, proxyAdmin };
 });
