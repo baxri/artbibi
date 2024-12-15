@@ -2,5 +2,7 @@
   "ProxyModule#NFTCollection": "0x9a497193559aB15b199EB1ACAeC0549524415E58",
   "ProxyModule#TransparentUpgradeableProxy": "0x7AD3DBEb69eB2B80F4182F96c94cbeA4dE267E9C",
   "ProxyModule#ProxyAdmin": "0x641ce03Cb50334306C218Dc0b6A8D97de21FcE3f",
-  "NFTCollectionModule#NFTCollection": "0x7AD3DBEb69eB2B80F4182F96c94cbeA4dE267E9C"
+  "NFTCollectionModule#NFTCollection": "0x7AD3DBEb69eB2B80F4182F96c94cbeA4dE267E9C",
+  "NFTCollectionV2Module#NFTCollectionV2": "0x7AD3DBEb69eB2B80F4182F96c94cbeA4dE267E9C",
+  "UpgradeModule#NFTCollectionV2": "0xDC601efC2E757F395173447fF599165C820fCEC7"
 }

@@ -7,13 +7,9 @@ const upgradeModule = buildModule("UpgradeModule", (m) => {
 
   const { proxyAdmin, proxy } = m.useModule(proxyModule);
 
-  const demoV2 = m.contract("NFTCollection");
-
-  // const encodedFunctionCall = m.encodeFunctionCall(demoV2, "setName", [
-  //   "Example Name",
-  // ]);
-
-  m.call(proxyAdmin, "upgradeAndCall", [proxy, demoV2, "0x"], {
+  const NFTCollectionV2 = m.contract("NFTCollectionV2");
+  
+  m.call(proxyAdmin, "upgradeAndCall", [proxy, NFTCollectionV2, "0x"], {
     from: proxyAdminOwner,
   });
 
@@ -23,9 +19,8 @@ const upgradeModule = buildModule("UpgradeModule", (m) => {
 const demoV2Module = buildModule("NFTCollectionV2Module", (m) => {
   const { proxy } = m.useModule(upgradeModule);
 
-  const demo = m.contractAt("NFTCollection", proxy);
-
-  return { demo };
+  const NFTCollectionV2 = m.contractAt("NFTCollectionV2", proxy);
+  return { NFTCollectionV2 };
 });
 
 export default demoV2Module;

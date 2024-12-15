@@ -69,6 +69,27 @@ describe("NFTCollection", function () {
       const nft = await nftCollection.nfts(1);
       expect(nft.price).to.equal(0);
       expect(nft.isForSale).to.be.false;
+
+     
+    });
+
+    it("Should burn an NFT", async function () {
+      const { nftCollection, owner } = await deployNFTCollectionFixture();
+
+      const cid = "j2h3b4j2hb4jb3j";
+
+      await nftCollection.connect(owner).mintNFTWithoutPrice(cid);
+
+      expect(await nftCollection.tokenURI(1)).to.equal(`https://teal-total-pony-174.mypinata.cloud/ipfs/${cid}`);
+      expect(await nftCollection.ownerOf(1)).to.equal(owner.address);
+
+      const nft = await nftCollection.nfts(1);
+      expect(nft.price).to.equal(0);
+      expect(nft.isForSale).to.be.false;
+
+       // Burn
+       await nftCollection.connect(owner).burn(1);
+        expect(await nftCollection.tokenURI(1)).to.be.reverted
     });
 
     it("Should revert if a non-owner tries to mint", async function () {
