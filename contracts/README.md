@@ -25,4 +25,13 @@ npx hardhat ignition verify chain-137 --include-unrelated-contracts
 npx hardhat test
 npx hardhat compile
 npx hardhat node
+
+
+
+# https://app.pinata.cloud/ipfs/files
+
+# https://opensea.io/collection/mr-artbibi
+# https://polygonscan.com/address/0x7ad3dbeb69eb2b80f4182f96c94cbea4de267e9c
 ```
+
+
