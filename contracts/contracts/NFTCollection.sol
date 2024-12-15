@@ -2,39 +2,50 @@
 pragma solidity ^0.8.28;
 
 import {ERC721URIStorage, ERC721} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-// {
-//     "name": "Thor's hammer",
-//     "description": "Mjölnir, the legendary hammer of the Norse god of thunder.",
-//     "image": "https://game.example/item-id-8u5h2m.png",
-//     "strength": 20
-// }
-
-contract NFTCollection is ERC721URIStorage, Ownable {
+contract NFTCollection is ERC721URIStorageUpgradeable, OwnableUpgradeable {
+    string private _resourceBase;
     uint256 private _nextTokenId;
-
     struct NFT {
         uint256 price;
         bool isForSale;
     }
 
     mapping(uint256 => NFT) public nfts;
+    mapping(uint256 => string) private _cids;
 
-    constructor() ERC721("ArtBIBI", "BIBI") Ownable(msg.sender) {
+    function initialize() public initializer {
+        __ERC721URIStorage_init();
+        __ERC721_init("Mr. ARTBIBI", "BIBI");
+        __Ownable_init(msg.sender);
+
+        _resourceBase = "https://teal-total-pony-174.mypinata.cloud/ipfs/";
         _nextTokenId = 0;
     }
 
+    function mintNFTWithoutPrice(
+        string memory cid
+    ) public onlyOwner returns (uint256) {
+        uint256 tokenId = ++_nextTokenId;
+        _mint(msg.sender, tokenId);
+        _cids[tokenId] = cid;
+        return tokenId;
+    }
+
     function mintNFT(
-        string memory tokenURI,
+        string memory cid,
         uint256 price
     ) public onlyOwner returns (uint256) {
-        uint256 tokenId = _nextTokenId + 1;
+        uint256 tokenId = ++_nextTokenId;
         _mint(msg.sender, tokenId);
-        _setTokenURI(tokenId, tokenURI);
 
+        // string memory tokenURI = string(abi.encodePacked(_resourceBase, cid));
+        // _setTokenURI(tokenId, tokenURI);
+
+        _cids[tokenId] = cid;
         nfts[tokenId] = NFT(price, true);
-
         return tokenId;
     }
 
@@ -59,5 +70,20 @@ contract NFTCollection is ERC721URIStorage, Ownable {
         require(ownerOf(tokenId) == msg.sender, "You are not the owner");
         nfts[tokenId].price = price;
         nfts[tokenId].isForSale = true;
+    }
+
+    function setResourceBase(string memory resourceBase) public onlyOwner {
+        _resourceBase = resourceBase;
+    }
+
+    function getResourceBase() public view returns (string memory) {
+        return _resourceBase;
+    }
+
+    // Override tokenURI to dynamically construct the full URI
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
+        return string.concat(_resourceBase, _cids[tokenId]);
     }
 }

@@ -5,10 +5,12 @@ export const proxyModule = buildModule("ProxyModule", (m) => {
 
   const demo = m.contract("NFTCollection");
 
+  const initializeData = m.encodeFunctionCall(demo, "initialize", []);
+
   const proxy = m.contract("TransparentUpgradeableProxy", [
     demo,
     proxyAdminOwner,
-    "0x",
+    initializeData, //"0x",
   ]);
 
   const proxyAdminAddress = m.readEventArgument(

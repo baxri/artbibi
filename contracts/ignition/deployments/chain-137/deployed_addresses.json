@@ -1,6 +1,6 @@
 {
-  "ProxyModule#Demo": "0x89fD769D38f08AB510f786279da1288E066f419f",
-  "ProxyModule#TransparentUpgradeableProxy": "0x50DD68363Ef168e8E7586588e8aE06B78C530043",
-  "ProxyModule#ProxyAdmin": "0xa4eA2678588a258d04F47E6aBa0c9caa89957951",
-  "DemoModule#Demo": "0x50DD68363Ef168e8E7586588e8aE06B78C530043"
+  "ProxyModule#NFTCollection": "0x9a497193559aB15b199EB1ACAeC0549524415E58",
+  "ProxyModule#TransparentUpgradeableProxy": "0x7AD3DBEb69eB2B80F4182F96c94cbeA4dE267E9C",
+  "ProxyModule#ProxyAdmin": "0x641ce03Cb50334306C218Dc0b6A8D97de21FcE3f",
+  "NFTCollectionModule#NFTCollection": "0x7AD3DBEb69eB2B80F4182F96c94cbeA4dE267E9C"
 }

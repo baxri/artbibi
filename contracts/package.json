@@ -5,10 +5,16 @@
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "hardhat": "^2.22.17",
+    "node-fetch": "^2.7.0",
     "typechain": "^8.3.2",
     "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.1.0"
+    "@openzeppelin/contracts": "^5.1.0",
+    "@openzeppelin/contracts-upgradeable": "^5.1.0",
+    "@pinata/sdk": "^2.1.0",
+    "dotenv": "^16.4.7",
+    "form-data": "^4.0.1",
+    "pinata": "^1.9.1"
   }
 }

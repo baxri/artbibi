@@ -1,0 +1,31 @@
+{
+  "name": "A Moment of Serenity",
+  "description": "This evocative artwork, titled 'A Moment of Serenity,' captures a tranquil moment of introspection and self-awareness. The central figure, bathed in soft, radiant light, holds a glass of red elixir, symbolizing vitality and indulgence. The delicate pastel colors of the background evoke a dreamlike atmosphere, enhancing the intimate connection between the viewer and the subject. Created by Bibi in 2024, this painting celebrates the beauty of stillness and the power of quiet reflection.",
+  "image": "https://teal-total-pony-174.mypinata.cloud/ipfs/bafybeic2gwyudscaq7ehs6sh3pa7tm6sgowae7qo5qbwsnjv4ngvtrazkm",
+  "attributes": [
+    {
+      "trait_type": "Artist",
+      "value": "Bibi"
+    },
+    {
+      "trait_type": "Year",
+      "value": "2024"
+    },
+    {
+      "trait_type": "Medium",
+      "value": "Oil Pastel on Canvas"
+    },
+    {
+      "trait_type": "Theme",
+      "value": "Serenity and Reflection"
+    },
+    {
+      "trait_type": "Dominant Colors",
+      "value": "Pastel Purple, Red, and Gold"
+    },
+    {
+      "trait_type": "Style",
+      "value": "Impressionism"
+    }
+  ]
+}
