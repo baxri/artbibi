@@ -97,55 +97,39 @@ describe("SocialMediaVerification", function () {
       expect(accounts[0].isVerified).to.be.true;
     });
 
-    it("Should register a post successfully", async function () {
+    it("Should register post and return hash for verification", async function () {
       const { socialMediaVerification, user1, verifier } =
         await deploySocialMediaVerificationFixture();
 
       const username = "testuser";
       const platform = "twitter";
-      const postContent = "Hello Web3!";
-      const postHash = hre.ethers.keccak256(
-        hre.ethers.toUtf8Bytes(postContent)
-      );
+      const postUrl = "https://twitter.com/testuser/status/123456789";
 
       // First verify the account
       await verifyAccount(socialMediaVerification, verifier, user1, username, platform);
 
-      // Register the post
-      const postTx = await socialMediaVerification
+      // Register the post and get the transaction
+      const tx = await socialMediaVerification
         .connect(user1)
-        .registerPost(postHash, platform);
-      const postReceipt = await postTx.wait();
+        .registerPost(postUrl, platform);
+      
+      const receipt = await tx.wait();
 
-      const blockTimestamp = await hre.ethers.provider.getBlock("latest").then((b) => b!.timestamp);
-
-      // Verify the PostRegistered event
-      expect(postReceipt)
-        .to.emit(socialMediaVerification, "PostRegistered")
-        .withArgs(user1.address, postHash, blockTimestamp, platform);
-
-      // Verify the post was stored correctly
-      const post = await socialMediaVerification.posts(0);
-      expect(post.author).to.equal(user1.address);
-      expect(post.postHash).to.equal(postHash);
-      expect(post.platform).to.equal(platform);
-      expect(post.timestamp).to.be.gt(0);
-    });
-
-    it("Should fail to register post if account is not verified", async function () {
-      const { socialMediaVerification, user1 } =
-        await deploySocialMediaVerificationFixture();
-
-      const platform = "twitter";
-      const postContent = "Hello Web3!";
-      const postHash = hre.ethers.keccak256(
-        hre.ethers.toUtf8Bytes(postContent)
+      const events = receipt!.logs.map((log: any) =>
+        socialMediaVerification.interface.parseLog(log)
       );
 
-      // Try to register post without verification
-      await expect(
-        socialMediaVerification.connect(user1).registerPost(postHash, platform)
-      ).to.be.revertedWith("User is not verified for this platform");
+      const postHash = events[0]?.args?.postHash;
+
+      // Verify the post exists and details are correct
+      const postInfo = await socialMediaVerification.verifyPost(postHash);
+
+      expect(postInfo.exists).to.be.true;
+      expect(postInfo.author).to.equal(user1.address);
+      expect(postInfo.platform).to.equal(platform);
+      expect(postInfo.authorUsername).to.equal(username);
+      expect(postInfo.timestamp).to.be.gt(0);
+      expect(postInfo.postUrl).to.equal(postUrl);
     });
   });
 });

@@ -16,7 +16,7 @@ contract SocialMediaVerification {
 
     struct Post {
         address author;         // Address of the user who created the post
-        bytes32 postHash;       // Hash of the post content
+        string postUrl;         // URL to the original post
         uint256 timestamp;      // Timestamp when the post was created
         string platform;        // Platform the post was made on
     }
@@ -33,8 +33,14 @@ contract SocialMediaVerification {
     // Event for social account registration
     event SocialAccountRegistered(address indexed user, string username, string platform);
 
-    // Event for new post registration
-    event PostRegistered(address indexed author, bytes32 postHash, uint256 timestamp, string platform);
+    // Event for new post registration - now includes the URL
+    event PostRegistered(
+        address indexed author, 
+        bytes32 indexed postHash, 
+        string postUrl,
+        uint256 timestamp, 
+        string platform
+    );
 
     // Verification request status
     struct VerificationRequest {
@@ -118,20 +124,43 @@ contract SocialMediaVerification {
     );
 
     /// @notice Register a new post on the blockchain
-    /// @param postHash The hash of the post content
+    /// @param postUrl The URL to the original post
     /// @param platform The platform where the post was made
-    function registerPost(bytes32 postHash, string calldata platform) external {
+    /// @return postHash The generated hash for the post
+    function registerPost(
+        string calldata postUrl,
+        string calldata platform
+    ) external returns (bytes32 postHash) {
         require(platformExists[msg.sender][platform], "User is not verified for this platform");
-        require(postHash != bytes32(0), "Invalid post hash");
+        require(bytes(postUrl).length > 0, "Post URL cannot be empty");
+
+        // Generate hash from the URL
+        postHash = keccak256(abi.encodePacked(postUrl));
+        // Check if this URL has already been registered
+        // Check if post already exists by searching through posts array
+        bool exists = false;
+        for (uint256 i = 0; i < posts.length; i++) {
+            if (keccak256(abi.encodePacked(posts[i].postUrl)) == postHash) {
+                exists = true;
+                break;
+            }
+        }
+        require(!exists, "Post already registered");
 
         posts.push(Post({
             author: msg.sender,
-            postHash: postHash,
+            postUrl: postUrl,
             timestamp: block.timestamp,
             platform: platform
         }));
 
-        emit PostRegistered(msg.sender, postHash, block.timestamp, platform);
+        emit PostRegistered(
+            msg.sender, 
+            postHash, 
+            postUrl,
+            block.timestamp, 
+            platform
+        );
     }
 
     /// @notice Get all posts by a user
@@ -166,15 +195,41 @@ contract SocialMediaVerification {
         return userAccounts[user];
     }
 
-    /// @notice Verify if a post hash exists in the blockchain
+    struct PostVerificationInfo {
+        bool exists;           // Whether the post exists
+        address author;        // Address of the post author
+        string platform;       // Platform where it was posted
+        uint256 timestamp;     // When it was posted
+        string authorUsername; // Username of the author on that platform
+        string postUrl;        // URL to the original post
+    }
+
+    /// @notice Get detailed information about a post
     /// @param postHash The hash of the post to verify
-    /// @return isValid True if the post exists, false otherwise
-    function verifyPost(bytes32 postHash) external view returns (bool isValid) {
+    /// @return info Detailed information about the post
+    function verifyPost(bytes32 postHash) external view returns (PostVerificationInfo memory info) {
+        info.exists = false;
+        
         for (uint256 i = 0; i < posts.length; i++) {
-            if (posts[i].postHash == postHash) {
-                return true;
+            bytes32 currentHash = keccak256(abi.encodePacked(posts[i].postUrl));
+            if (currentHash == postHash) {
+                Post storage post = posts[i];
+                info.exists = true;
+                info.author = post.author;
+                info.platform = post.platform;
+                info.timestamp = post.timestamp;
+                info.postUrl = post.postUrl;
+                
+                // Find the author's username for this platform
+                SocialAccount[] storage accounts = userAccounts[post.author];
+                for (uint256 j = 0; j < accounts.length; j++) {
+                    if (keccak256(bytes(accounts[j].platform)) == keccak256(bytes(post.platform))) {
+                        info.authorUsername = accounts[j].username;
+                        break;
+                    }
+                }
+                break;
             }
         }
-        return false;
     }
 }
