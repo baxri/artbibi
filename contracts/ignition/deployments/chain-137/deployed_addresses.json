@@ -4,5 +4,9 @@
   "ProxyModule#ProxyAdmin": "0x641ce03Cb50334306C218Dc0b6A8D97de21FcE3f",
   "NFTCollectionModule#NFTCollection": "0x7AD3DBEb69eB2B80F4182F96c94cbeA4dE267E9C",
   "NFTCollectionV2Module#NFTCollectionV2": "0x7AD3DBEb69eB2B80F4182F96c94cbeA4dE267E9C",
-  "UpgradeModule#NFTCollectionV2": "0xDC601efC2E757F395173447fF599165C820fCEC7"
+  "UpgradeModule#NFTCollectionV2": "0xDC601efC2E757F395173447fF599165C820fCEC7",
+  "SocialMediaVerificationProxyModule#SocialMediaVerification": "0xC02F1de25Dc974f3C52d16F9757347C7fB852BE7",
+  "SocialMediaVerificationProxyModule#TransparentUpgradeableProxy": "0x15eF93CA1ADceb6779bBD6A5A0A9a5b7Ec32f432",
+  "SocialMediaVerificationProxyModule#ProxyAdmin": "0xf8173F36B93f891aB0222bF7D86F6EDc27086F47",
+  "SocialMediaVerificationModule#SocialMediaVerification": "0x15eF93CA1ADceb6779bBD6A5A0A9a5b7Ec32f432"
 }

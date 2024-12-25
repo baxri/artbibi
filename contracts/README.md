@@ -18,8 +18,12 @@ npx hardhat vars delete PRIVATE_KEY
 npx hardhat ignition deploy ./ignition/modules/Lock.ts --network localhost
 
 npx hardhat ignition deploy ./ignition/modules/NFTCollection/ProxyModule.ts --network polygon --verify
+npx hardhat ignition deploy ./ignition/modules/SocialMediaVerification/ProxyModule.ts --network polygon --verify
+
+
 npx hardhat ignition deploy ./ignition/modules/NFTCollection/UpgradeModule.ts --network polygon --verify
 npx hardhat ignition verify chain-137 --include-unrelated-contracts
+
 
 
 npx hardhat test

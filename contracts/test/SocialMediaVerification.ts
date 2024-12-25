@@ -8,9 +8,10 @@ describe("SocialMediaVerification", function () {
     const SocialMediaVerification = await hre.ethers.getContractFactory(
       "SocialMediaVerification"
     );
-    const socialMediaVerification = await SocialMediaVerification.deploy(
-      verifier.address
-    );
+    const socialMediaVerification = await SocialMediaVerification.deploy();
+
+    await socialMediaVerification.initialize();
+    await socialMediaVerification.connect(owner).setVerifier(verifier.address);
 
     return { socialMediaVerification, owner, verifier, user1, user2 };
   }

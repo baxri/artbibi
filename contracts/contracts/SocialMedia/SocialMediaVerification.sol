@@ -2,28 +2,30 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract SocialMediaVerification {
+
+contract SocialMediaVerification is OwnableUpgradeable {
     using ECDSA for bytes32;
-    
+
     address public verifier; // Address of the backend server that verifies social media
-    
+
     struct SocialAccount {
-        string username;        // Social media username (e.g., Twitter handle)
-        string platform;        // Social media platform (e.g., Twitter, Instagram)
-        bool isVerified;        // Verification status
+        string username; // Social media username (e.g., Twitter handle)
+        string platform; // Social media platform (e.g., Twitter, Instagram)
+        bool isVerified; // Verification status
     }
 
     struct Post {
-        address author;         // Address of the user who created the post
-        string postUrl;         // URL to the original post
-        uint256 timestamp;      // Timestamp when the post was created
-        string platform;        // Platform the post was made on
+        address author; // Address of the user who created the post
+        string postUrl; // URL to the original post
+        uint256 timestamp; // Timestamp when the post was created
+        string platform; // Platform the post was made on
     }
 
     // Mapping of user address to array of social accounts
     mapping(address => SocialAccount[]) public userAccounts;
-    
+
     // Mapping to check if a platform is already registered for a user
     mapping(address => mapping(string => bool)) private platformExists;
 
@@ -31,14 +33,18 @@ contract SocialMediaVerification {
     Post[] public posts;
 
     // Event for social account registration
-    event SocialAccountRegistered(address indexed user, string username, string platform);
+    event SocialAccountRegistered(
+        address indexed user,
+        string username,
+        string platform
+    );
 
     // Event for new post registration - now includes the URL
     event PostRegistered(
-        address indexed author, 
-        bytes32 indexed postHash, 
+        address indexed author,
+        bytes32 indexed postHash,
         string postUrl,
-        uint256 timestamp, 
+        uint256 timestamp,
         string platform
     );
 
@@ -50,18 +56,28 @@ contract SocialMediaVerification {
         uint256 timestamp;
         bool isVerified;
     }
-    
+
     // Mapping to store verification requests
     mapping(bytes32 => VerificationRequest) public verificationRequests;
-    
-    constructor(address _verifier) {
+
+
+    function initialize() external initializer onlyInitializing {
+        __Ownable_init(msg.sender);
+    }
+
+    function setVerifier(address _verifier) external onlyOwner {
         verifier = _verifier;
     }
 
     /// @notice Step 1: User initiates verification request
-    function initiateVerification(string calldata username, string calldata platform) external {
-        bytes32 requestId = keccak256(abi.encodePacked(msg.sender, username, platform, block.timestamp));
-        
+    function initiateVerification(
+        string calldata username,
+        string calldata platform
+    ) external {
+        bytes32 requestId = keccak256(
+            abi.encodePacked(msg.sender, username, platform, block.timestamp)
+        );
+
         verificationRequests[requestId] = VerificationRequest({
             user: msg.sender,
             username: username,
@@ -81,16 +97,23 @@ contract SocialMediaVerification {
         bytes calldata signature
     ) external {
         // Verify the signature is from our trusted verifier
-        bytes32 message = keccak256(abi.encodePacked(requestId, msg.sender, username, platform));
-        bytes32 ethSignedMessage = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", message));
+        bytes32 message = keccak256(
+            abi.encodePacked(requestId, msg.sender, username, platform)
+        );
+        bytes32 ethSignedMessage = keccak256(
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", message)
+        );
         address signer = ECDSA.recover(ethSignedMessage, signature);
-        
+
         require(signer == verifier, "Invalid verifier signature");
-        require(verificationRequests[requestId].user == msg.sender, "Invalid request");
-        
+        require(
+            verificationRequests[requestId].user == msg.sender,
+            "Invalid request"
+        );
+
         // Mark as verified and register the account
         verificationRequests[requestId].isVerified = true;
-        
+
         // Register the social account
         _registerSocialAccount(msg.sender, username, platform);
     }
@@ -102,7 +125,7 @@ contract SocialMediaVerification {
         string memory platform
     ) internal {
         require(!platformExists[user][platform], "Platform already registered");
-        
+
         SocialAccount memory newAccount = SocialAccount({
             username: username,
             platform: platform,
@@ -131,7 +154,10 @@ contract SocialMediaVerification {
         string calldata postUrl,
         string calldata platform
     ) external returns (bytes32 postHash) {
-        require(platformExists[msg.sender][platform], "User is not verified for this platform");
+        require(
+            platformExists[msg.sender][platform],
+            "User is not verified for this platform"
+        );
         require(bytes(postUrl).length > 0, "Post URL cannot be empty");
 
         // Generate hash from the URL
@@ -147,18 +173,20 @@ contract SocialMediaVerification {
         }
         require(!exists, "Post already registered");
 
-        posts.push(Post({
-            author: msg.sender,
-            postUrl: postUrl,
-            timestamp: block.timestamp,
-            platform: platform
-        }));
+        posts.push(
+            Post({
+                author: msg.sender,
+                postUrl: postUrl,
+                timestamp: block.timestamp,
+                platform: platform
+            })
+        );
 
         emit PostRegistered(
-            msg.sender, 
-            postHash, 
+            msg.sender,
+            postHash,
             postUrl,
-            block.timestamp, 
+            block.timestamp,
             platform
         );
     }
@@ -166,7 +194,9 @@ contract SocialMediaVerification {
     /// @notice Get all posts by a user
     /// @param user The address of the user
     /// @return userPosts Array of posts created by the user
-    function getUserPosts(address user) external view returns (Post[] memory userPosts) {
+    function getUserPosts(
+        address user
+    ) external view returns (Post[] memory userPosts) {
         uint256 count = 0;
 
         // Count the number of posts by the user
@@ -191,25 +221,29 @@ contract SocialMediaVerification {
     /// @notice Get all social accounts for a user
     /// @param user The address of the user
     /// @return accounts Array of social accounts registered by the user
-    function getUserSocialAccounts(address user) external view returns (SocialAccount[] memory) {
+    function getUserSocialAccounts(
+        address user
+    ) external view returns (SocialAccount[] memory) {
         return userAccounts[user];
     }
 
     struct PostVerificationInfo {
-        bool exists;           // Whether the post exists
-        address author;        // Address of the post author
-        string platform;       // Platform where it was posted
-        uint256 timestamp;     // When it was posted
+        bool exists; // Whether the post exists
+        address author; // Address of the post author
+        string platform; // Platform where it was posted
+        uint256 timestamp; // When it was posted
         string authorUsername; // Username of the author on that platform
-        string postUrl;        // URL to the original post
+        string postUrl; // URL to the original post
     }
 
     /// @notice Get detailed information about a post
     /// @param postHash The hash of the post to verify
     /// @return info Detailed information about the post
-    function verifyPost(bytes32 postHash) external view returns (PostVerificationInfo memory info) {
+    function verifyPost(
+        bytes32 postHash
+    ) external view returns (PostVerificationInfo memory info) {
         info.exists = false;
-        
+
         for (uint256 i = 0; i < posts.length; i++) {
             bytes32 currentHash = keccak256(abi.encodePacked(posts[i].postUrl));
             if (currentHash == postHash) {
@@ -219,11 +253,14 @@ contract SocialMediaVerification {
                 info.platform = post.platform;
                 info.timestamp = post.timestamp;
                 info.postUrl = post.postUrl;
-                
+
                 // Find the author's username for this platform
                 SocialAccount[] storage accounts = userAccounts[post.author];
                 for (uint256 j = 0; j < accounts.length; j++) {
-                    if (keccak256(bytes(accounts[j].platform)) == keccak256(bytes(post.platform))) {
+                    if (
+                        keccak256(bytes(accounts[j].platform)) ==
+                        keccak256(bytes(post.platform))
+                    ) {
                         info.authorUsername = accounts[j].username;
                         break;
                     }
