@@ -37,7 +37,7 @@ describe("SocialMediaVerification", function () {
     platform: string
   ) {
     const requestId = await initiateVerification(socialMediaVerification, user, username, platform);
-    
+
     const message = hre.ethers.solidityPackedKeccak256(
       ["bytes32", "address", "string", "string"],
       [requestId, user.address, username, platform]
