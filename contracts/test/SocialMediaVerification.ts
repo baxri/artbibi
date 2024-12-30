@@ -17,7 +17,12 @@ describe("SocialMediaVerification", function () {
   }
 
   // Helper function to initiate verification and get requestId
-  async function initiateVerification(socialMediaVerification: any, user: any, username: string, platform: string) {
+  async function initiateVerification(
+    socialMediaVerification: any,
+    user: any,
+    username: string,
+    platform: string
+  ) {
     const tx = await socialMediaVerification
       .connect(user)
       .initiateVerification(username, platform);
@@ -36,7 +41,12 @@ describe("SocialMediaVerification", function () {
     username: string,
     platform: string
   ) {
-    const requestId = await initiateVerification(socialMediaVerification, user, username, platform);
+    const requestId = await initiateVerification(
+      socialMediaVerification,
+      user,
+      username,
+      platform
+    );
 
     const message = hre.ethers.solidityPackedKeccak256(
       ["bytes32", "address", "string", "string"],
@@ -44,12 +54,9 @@ describe("SocialMediaVerification", function () {
     );
     const signature = await verifier.signMessage(hre.ethers.getBytes(message));
 
-    await socialMediaVerification.connect(user).confirmVerification(
-      requestId,
-      username,
-      platform,
-      signature
-    );
+    await socialMediaVerification
+      .connect(user)
+      .confirmVerification(requestId, username, platform, signature);
 
     return requestId;
   }
@@ -72,7 +79,12 @@ describe("SocialMediaVerification", function () {
       const username = "testuser";
       const platform = "twitter";
 
-      const requestId = await initiateVerification(socialMediaVerification, user1, username, platform);
+      const requestId = await initiateVerification(
+        socialMediaVerification,
+        user1,
+        username,
+        platform
+      );
 
       const res = await socialMediaVerification.verificationRequests(requestId);
 
@@ -86,7 +98,13 @@ describe("SocialMediaVerification", function () {
       const username = "testuser";
       const platform = "twitter";
 
-      await verifyAccount(socialMediaVerification, verifier, user1, username, platform);
+      await verifyAccount(
+        socialMediaVerification,
+        verifier,
+        user1,
+        username,
+        platform
+      );
 
       // Check account is registered
       const accounts = await socialMediaVerification.getUserSocialAccounts(
@@ -98,6 +116,32 @@ describe("SocialMediaVerification", function () {
       expect(accounts[0].isVerified).to.be.true;
     });
 
+    it("Should not confirm verification if it is already confirmed or wrong request", async function () {
+      const { socialMediaVerification, verifier, user1 } =
+        await deploySocialMediaVerificationFixture();
+
+      const username = "testuser";
+      const platform = "twitter";
+
+      await verifyAccount(
+        socialMediaVerification,
+        verifier,
+        user1,
+        username,
+        platform
+      );
+
+      await expect(
+         verifyAccount(
+          socialMediaVerification,
+          verifier,
+          user1,
+          username,
+          platform
+        )
+      ).to.be.revertedWith("Platform already registered");
+    });
+
     it("Should register post and return hash for verification", async function () {
       const { socialMediaVerification, user1, verifier } =
         await deploySocialMediaVerificationFixture();
@@ -107,13 +151,19 @@ describe("SocialMediaVerification", function () {
       const postUrl = "https://twitter.com/testuser/status/123456789";
 
       // First verify the account
-      await verifyAccount(socialMediaVerification, verifier, user1, username, platform);
+      await verifyAccount(
+        socialMediaVerification,
+        verifier,
+        user1,
+        username,
+        platform
+      );
 
       // Register the post and get the transaction
       const tx = await socialMediaVerification
         .connect(user1)
         .registerPost(postUrl, platform);
-      
+
       const receipt = await tx.wait();
 
       const events = receipt!.logs.map((log: any) =>

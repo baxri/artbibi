@@ -42,6 +42,8 @@ npx hardhat node
 
 1. User connects their wallet
 2. Show the user the list of social media platforms which are already verified and the add button to add new one
+
+
 3. When you click on add button, User selects a social media platform and enters their username
 4. User clicks on the "Verify" button gets the verification request id
 5. User is redirected to the social media platform to confirm the verification
@@ -59,6 +61,7 @@ Instagram URLS:
 
  https://www.myauto.ge/ka/?code=AQBb-J_G1GsIaosXyvqFmDq9S3aTauP3y395LAEqW8A4CssMlzrbRLeNHIpD0UJT-Zyd2I5lt_9tKem1tYrL5qZeinyxthBUyKeQ5Ab7mtEAT3ym1ckT0G-TsktjvPSn4GztzGgLlQMj0TDToDaYS4y9_8bECEXvGYrYWLr4Ry9YIE_GXAKbeHsKHlspUL_X8cJCH1S4wL782kt4tsF1Tnc-1askOwg2zueexHnFICnUkA#_
 
+https://www.myauto.ge/ka/?code=AQC90F_YvnHqgT88jnMn-kl8XXVtu4EbHB8I8bk3P9XwKBk-7IvZpViUCxxbnVJxHVs6I_m-muUpzxvMZZO7BiaVNUh7Toqnz_zwc0pyKUmokIB6QybP_Xmtd05uzV_CNXiRsxRvviIuxPfav2qW2Qz_LR-8dq3-WJIczCWGjfWQ_bP2RUU1FJ78yQRCAzwsC03X6p4CSUBmeMRPa2NfKOwbz9NOEgfCLRIfsTPzZF4BSQ#_
 
 
 
