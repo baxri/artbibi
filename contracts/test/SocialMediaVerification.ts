@@ -116,6 +116,24 @@ describe("SocialMediaVerification", function () {
       expect(accounts[0].isVerified).to.be.true;
     });
 
+    it("Should revert verification if verifier is wrong", async function () {
+      const { socialMediaVerification, verifier, user1 } =
+        await deploySocialMediaVerificationFixture();
+
+      const username = "testuser";
+      const platform = "twitter";
+
+      const receipt = verifyAccount(
+        socialMediaVerification,
+        user1, // Set wrong verifier
+        user1,
+        username,
+        platform
+      );
+
+      await expect(receipt).to.be.revertedWith("Invalid verifier signature");
+    });
+
     it("Should not confirm verification if it is already confirmed or wrong request", async function () {
       const { socialMediaVerification, verifier, user1 } =
         await deploySocialMediaVerificationFixture();
@@ -181,6 +199,14 @@ describe("SocialMediaVerification", function () {
       expect(postInfo.authorUsername).to.equal(username);
       expect(postInfo.timestamp).to.be.gt(0);
       expect(postInfo.postUrl).to.equal(postUrl);
+
+      // Verify the post exists and details are correct
+      const userPosts = await socialMediaVerification.getUserPosts(user1?.address);
+
+      expect(userPosts.length).to.equal(1);
+      expect(userPosts[0].postHash).to.equal(postHash);
+      expect(userPosts[0].authorUsername).to.equal(username);
+      expect(userPosts[0].platform).to.equal(platform);
     });
   });
 });

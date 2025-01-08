@@ -4,7 +4,6 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-
 contract SocialMediaVerification is OwnableUpgradeable {
     using ECDSA for bytes32;
 
@@ -21,6 +20,8 @@ contract SocialMediaVerification is OwnableUpgradeable {
         string postUrl; // URL to the original post
         uint256 timestamp; // Timestamp when the post was created
         string platform; // Platform the post was made on
+        bytes32 postHash; // Hash of the post
+        string authorUsername; // Username of the author on that platform
     }
 
     // Mapping of user address to array of social accounts
@@ -48,6 +49,13 @@ contract SocialMediaVerification is OwnableUpgradeable {
         string platform
     );
 
+    event VerificationFailed(
+        address indexed user,
+        address indexed signer,
+        address indexed verifier,
+        string message
+    );
+
     // Verification request status
     struct VerificationRequest {
         address user;
@@ -59,7 +67,6 @@ contract SocialMediaVerification is OwnableUpgradeable {
 
     // Mapping to store verification requests
     mapping(bytes32 => VerificationRequest) public verificationRequests;
-
 
     function initialize() external initializer onlyInitializing {
         __Ownable_init(msg.sender);
@@ -105,7 +112,16 @@ contract SocialMediaVerification is OwnableUpgradeable {
         );
         address signer = ECDSA.recover(ethSignedMessage, signature);
 
-        require(signer == verifier, "Invalid verifier signature");
+        if (signer != verifier) {
+            emit VerificationFailed(
+                msg.sender,
+                signer,
+                verifier,
+                "Invalid verifier signature"
+            );
+            revert("Invalid verifier signature");
+        }
+
         require(
             verificationRequests[requestId].user == msg.sender,
             "Invalid request"
@@ -173,12 +189,25 @@ contract SocialMediaVerification is OwnableUpgradeable {
         }
         require(!exists, "Post already registered");
 
+
+        // Get author username
+        SocialAccount[] storage accounts = userAccounts[msg.sender];
+        string memory username;
+        for (uint256 i = 0; i < accounts.length; i++) {
+            if (keccak256(abi.encodePacked(accounts[i].platform)) == keccak256(abi.encodePacked(platform))) {
+                username = accounts[i].username;
+                break;
+            }
+        }
+
         posts.push(
             Post({
                 author: msg.sender,
                 postUrl: postUrl,
                 timestamp: block.timestamp,
-                platform: platform
+                platform: platform,
+                postHash: postHash,
+                authorUsername: username
             })
         );
 
@@ -245,8 +274,7 @@ contract SocialMediaVerification is OwnableUpgradeable {
         info.exists = false;
 
         for (uint256 i = 0; i < posts.length; i++) {
-            bytes32 currentHash = keccak256(abi.encodePacked(posts[i].postUrl));
-            if (currentHash == postHash) {
+            if (posts[i].postHash == postHash) {
                 Post storage post = posts[i];
                 info.exists = true;
                 info.author = post.author;

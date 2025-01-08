@@ -43,47 +43,51 @@ npx hardhat node
 1. User connects their wallet
 2. Show the user the list of social media platforms which are already verified and the add button to add new one
 
-
 3. When you click on add button, User selects a social media platform and enters their username
 4. User clicks on the "Verify" button gets the verification request id
 5. User is redirected to the social media platform to confirm the verification
 6. User is redirected back to the frontend application
 7. User can now see the verified status of their account
 
-
 Instagram URLS:
 
 // Configuration URL
 // https://developers.facebook.com/apps/1634819440405692/dashboard/
 
- https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=1952722025237124&redirect_uri=https://www.myauto.ge/ka/&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish
+https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=1952722025237124&redirect_uri=https://www.myauto.ge/ka/&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish
 
-
- https://www.myauto.ge/ka/?code=AQBb-J_G1GsIaosXyvqFmDq9S3aTauP3y395LAEqW8A4CssMlzrbRLeNHIpD0UJT-Zyd2I5lt_9tKem1tYrL5qZeinyxthBUyKeQ5Ab7mtEAT3ym1ckT0G-TsktjvPSn4GztzGgLlQMj0TDToDaYS4y9_8bECEXvGYrYWLr4Ry9YIE_GXAKbeHsKHlspUL_X8cJCH1S4wL782kt4tsF1Tnc-1askOwg2zueexHnFICnUkA#_
+https://www.myauto.ge/ka/?code=AQBb-J_G1GsIaosXyvqFmDq9S3aTauP3y395LAEqW8A4CssMlzrbRLeNHIpD0UJT-Zyd2I5lt_9tKem1tYrL5qZeinyxthBUyKeQ5Ab7mtEAT3ym1ckT0G-TsktjvPSn4GztzGgLlQMj0TDToDaYS4y9_8bECEXvGYrYWLr4Ry9YIE_GXAKbeHsKHlspUL_X8cJCH1S4wL782kt4tsF1Tnc-1askOwg2zueexHnFICnUkA#_
 
 https://www.myauto.ge/ka/?code=AQC90F_YvnHqgT88jnMn-kl8XXVtu4EbHB8I8bk3P9XwKBk-7IvZpViUCxxbnVJxHVs6I_m-muUpzxvMZZO7BiaVNUh7Toqnz_zwc0pyKUmokIB6QybP_Xmtd05uzV_CNXiRsxRvviIuxPfav2qW2Qz_LR-8dq3-WJIczCWGjfWQ_bP2RUU1FJ78yQRCAzwsC03X6p4CSUBmeMRPa2NfKOwbz9NOEgfCLRIfsTPzZF4BSQ#_
 
+```javascript
+// Exchange code to get the access token
+const tokenResponse = await axios.post(
+  "https://api.instagram.com/oauth/access_token",
+  new URLSearchParams({
+    client_id: process.env.INSTAGRAM_CLIENT_ID,
+    client_secret: process.env.INSTAGRAM_CLIENT_SECRET,
+    grant_type: "authorization_code",
+    redirect_uri: process.env.INSTAGRAM_REDIRECT_URI,
+    code,
+  })
+);
 
+const { access_token } = tokenResponse.data;
 
- ```javascript
-    // Exchange code to get the access token
-    const tokenResponse = await axios.post(
-      "https://api.instagram.com/oauth/access_token",
-      new URLSearchParams({
-        client_id: process.env.INSTAGRAM_CLIENT_ID,
-        client_secret: process.env.INSTAGRAM_CLIENT_SECRET,
-        grant_type: "authorization_code",
-        redirect_uri: process.env.INSTAGRAM_REDIRECT_URI,
-        code,
-      })
-    );
+// Fetch the username using the access token
+const userResponse = await axios.get(
+  `https://graph.instagram.com/me?fields=id,username&access_token=${access_token}`
+);
 
-    const { access_token } = tokenResponse.data;
+const { username } = userResponse.data;
+```
 
-    // Fetch the username using the access token
-    const userResponse = await axios.get(
-      `https://graph.instagram.com/me?fields=id,username&access_token=${access_token}`
-    );
-
-    const { username } = userResponse.data;
- ```
+```
+Possible improvements:
+1) Check for existing username on the platform in initial verification
+2) Add more events confirm verification failuire for debuging
+3) Add post hash in post object to show them in the frontend list
+4) Add function to show all posts in the system (to be used like on a media scan page)
+5) We should include username as well in list of posts
+```
