@@ -207,6 +207,14 @@ describe("SocialMediaVerification", function () {
       expect(userPosts[0].postHash).to.equal(postHash);
       expect(userPosts[0].authorUsername).to.equal(username);
       expect(userPosts[0].platform).to.equal(platform);
+
+       // Verify the post exists and details are correct
+       const allPosts = await socialMediaVerification.getAllPosts();
+
+       expect(allPosts.length).to.equal(1);
+       expect(allPosts[0].postHash).to.equal(postHash);
+       expect(allPosts[0].authorUsername).to.equal(username);
+       expect(allPosts[0].platform).to.equal(platform);
     });
   });
 });

@@ -13,6 +13,7 @@ contract SocialMediaVerification is OwnableUpgradeable {
         string username; // Social media username (e.g., Twitter handle)
         string platform; // Social media platform (e.g., Twitter, Instagram)
         bool isVerified; // Verification status
+        uint256 postCount; // Number of posts made by this account
     }
 
     struct Post {
@@ -26,12 +27,14 @@ contract SocialMediaVerification is OwnableUpgradeable {
 
     // Mapping of user address to array of social accounts
     mapping(address => SocialAccount[]) public userAccounts;
+    mapping(address => uint256) public userPostsCount;
 
     // Mapping to check if a platform is already registered for a user
     mapping(address => mapping(string => bool)) private platformExists;
 
     // Array of all posts (can also use a mapping with an ID if needed)
     Post[] public posts;
+    mapping(bytes32 => Post) postByHash;
 
     // Event for social account registration
     event SocialAccountRegistered(
@@ -145,7 +148,8 @@ contract SocialMediaVerification is OwnableUpgradeable {
         SocialAccount memory newAccount = SocialAccount({
             username: username,
             platform: platform,
-            isVerified: true
+            isVerified: true,
+            postCount: 0
         });
 
         userAccounts[user].push(newAccount);
@@ -162,10 +166,6 @@ contract SocialMediaVerification is OwnableUpgradeable {
         string platform
     );
 
-    /// @notice Register a new post on the blockchain
-    /// @param postUrl The URL to the original post
-    /// @param platform The platform where the post was made
-    /// @return postHash The generated hash for the post
     function registerPost(
         string calldata postUrl,
         string calldata platform
@@ -180,21 +180,19 @@ contract SocialMediaVerification is OwnableUpgradeable {
         postHash = keccak256(abi.encodePacked(postUrl));
         // Check if this URL has already been registered
         // Check if post already exists by searching through posts array
-        bool exists = false;
-        for (uint256 i = 0; i < posts.length; i++) {
-            if (keccak256(abi.encodePacked(posts[i].postUrl)) == postHash) {
-                exists = true;
-                break;
-            }
-        }
-        require(!exists, "Post already registered");
-
+        require(
+            postByHash[postHash].author == address(0),
+            "Post already registered"
+        );
 
         // Get author username
         SocialAccount[] storage accounts = userAccounts[msg.sender];
         string memory username;
         for (uint256 i = 0; i < accounts.length; i++) {
-            if (keccak256(abi.encodePacked(accounts[i].platform)) == keccak256(abi.encodePacked(platform))) {
+            if (
+                keccak256(abi.encodePacked(accounts[i].platform)) ==
+                keccak256(abi.encodePacked(platform))
+            ) {
                 username = accounts[i].username;
                 break;
             }
@@ -210,6 +208,8 @@ contract SocialMediaVerification is OwnableUpgradeable {
                 authorUsername: username
             })
         );
+        postByHash[postHash] = posts[posts.length - 1];
+        userPostsCount[msg.sender]++;
 
         emit PostRegistered(
             msg.sender,
@@ -220,23 +220,10 @@ contract SocialMediaVerification is OwnableUpgradeable {
         );
     }
 
-    /// @notice Get all posts by a user
-    /// @param user The address of the user
-    /// @return userPosts Array of posts created by the user
     function getUserPosts(
         address user
     ) external view returns (Post[] memory userPosts) {
-        uint256 count = 0;
-
-        // Count the number of posts by the user
-        for (uint256 i = 0; i < posts.length; i++) {
-            if (posts[i].author == user) {
-                count++;
-            }
-        }
-
-        // Create a temporary array to hold user posts
-        userPosts = new Post[](count);
+        userPosts = new Post[](userPostsCount[user]);
         uint256 index = 0;
 
         for (uint256 i = 0; i < posts.length; i++) {
@@ -247,9 +234,10 @@ contract SocialMediaVerification is OwnableUpgradeable {
         }
     }
 
-    /// @notice Get all social accounts for a user
-    /// @param user The address of the user
-    /// @return accounts Array of social accounts registered by the user
+    function getAllPosts() external view returns (Post[] memory) {
+        return posts;
+    }
+
     function getUserSocialAccounts(
         address user
     ) external view returns (SocialAccount[] memory) {
@@ -265,9 +253,6 @@ contract SocialMediaVerification is OwnableUpgradeable {
         string postUrl; // URL to the original post
     }
 
-    /// @notice Get detailed information about a post
-    /// @param postHash The hash of the post to verify
-    /// @return info Detailed information about the post
     function verifyPost(
         bytes32 postHash
     ) external view returns (PostVerificationInfo memory info) {

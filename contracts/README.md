@@ -85,8 +85,7 @@ const { username } = userResponse.data;
 
 ```
 Possible improvements:
-1) Check for existing username on the platform in initial verification
-2) Add more events confirm verification failuire for debuging
+2) Add more events confirm verification failuire for debuging + 
 3) Add post hash in post object to show them in the frontend list
 4) Add function to show all posts in the system (to be used like on a media scan page)
 5) We should include username as well in list of posts
