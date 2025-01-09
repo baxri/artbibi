@@ -34,7 +34,11 @@ contract SocialMediaVerification is OwnableUpgradeable {
 
     // Array of all posts (can also use a mapping with an ID if needed)
     Post[] public posts;
+
+    // Mapping to store post hashes by their hash
     mapping(bytes32 => Post) postByHash;
+    // Add this mapping at contract level
+    mapping(address => uint256[]) private userPostIndices; // Stores indices of posts for each user
 
     // Event for social account registration
     event SocialAccountRegistered(
@@ -198,6 +202,7 @@ contract SocialMediaVerification is OwnableUpgradeable {
             }
         }
 
+        uint256 newPostIndex = posts.length;
         posts.push(
             Post({
                 author: msg.sender,
@@ -211,6 +216,8 @@ contract SocialMediaVerification is OwnableUpgradeable {
         postByHash[postHash] = posts[posts.length - 1];
         userPostsCount[msg.sender]++;
 
+        userPostIndices[msg.sender].push(newPostIndex);
+
         emit PostRegistered(
             msg.sender,
             postHash,
@@ -223,14 +230,11 @@ contract SocialMediaVerification is OwnableUpgradeable {
     function getUserPosts(
         address user
     ) external view returns (Post[] memory userPosts) {
-        userPosts = new Post[](userPostsCount[user]);
-        uint256 index = 0;
+        uint256[] storage indices = userPostIndices[user];
+        userPosts = new Post[](indices.length);
 
-        for (uint256 i = 0; i < posts.length; i++) {
-            if (posts[i].author == user) {
-                userPosts[index] = posts[i];
-                index++;
-            }
+        for (uint256 i = 0; i < indices.length; i++) {
+            userPosts[i] = posts[indices[i]];
         }
     }
 
@@ -258,28 +262,15 @@ contract SocialMediaVerification is OwnableUpgradeable {
     ) external view returns (PostVerificationInfo memory info) {
         info.exists = false;
 
-        for (uint256 i = 0; i < posts.length; i++) {
-            if (posts[i].postHash == postHash) {
-                Post storage post = posts[i];
-                info.exists = true;
-                info.author = post.author;
-                info.platform = post.platform;
-                info.timestamp = post.timestamp;
-                info.postUrl = post.postUrl;
+        Post storage post = postByHash[postHash];
 
-                // Find the author's username for this platform
-                SocialAccount[] storage accounts = userAccounts[post.author];
-                for (uint256 j = 0; j < accounts.length; j++) {
-                    if (
-                        keccak256(bytes(accounts[j].platform)) ==
-                        keccak256(bytes(post.platform))
-                    ) {
-                        info.authorUsername = accounts[j].username;
-                        break;
-                    }
-                }
-                break;
-            }
+        if (post.author != address(0)) {
+            info.exists = true;
+            info.author = post.author;
+            info.platform = post.platform;
+            info.timestamp = post.timestamp;
+            info.postUrl = post.postUrl;
+            info.authorUsername = post.authorUsername;
         }
     }
 }

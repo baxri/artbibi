@@ -60,33 +60,10 @@ https://www.myauto.ge/ka/?code=AQBb-J_G1GsIaosXyvqFmDq9S3aTauP3y395LAEqW8A4CssMl
 
 https://www.myauto.ge/ka/?code=AQC90F_YvnHqgT88jnMn-kl8XXVtu4EbHB8I8bk3P9XwKBk-7IvZpViUCxxbnVJxHVs6I_m-muUpzxvMZZO7BiaVNUh7Toqnz_zwc0pyKUmokIB6QybP_Xmtd05uzV_CNXiRsxRvviIuxPfav2qW2Qz_LR-8dq3-WJIczCWGjfWQ_bP2RUU1FJ78yQRCAzwsC03X6p4CSUBmeMRPa2NfKOwbz9NOEgfCLRIfsTPzZF4BSQ#_
 
-```javascript
-// Exchange code to get the access token
-const tokenResponse = await axios.post(
-  "https://api.instagram.com/oauth/access_token",
-  new URLSearchParams({
-    client_id: process.env.INSTAGRAM_CLIENT_ID,
-    client_secret: process.env.INSTAGRAM_CLIENT_SECRET,
-    grant_type: "authorization_code",
-    redirect_uri: process.env.INSTAGRAM_REDIRECT_URI,
-    code,
-  })
-);
-
-const { access_token } = tokenResponse.data;
-
-// Fetch the username using the access token
-const userResponse = await axios.get(
-  `https://graph.instagram.com/me?fields=id,username&access_token=${access_token}`
-);
-
-const { username } = userResponse.data;
-```
-
 ```
 Possible improvements:
 2) Add more events confirm verification failuire for debuging + 
-3) Add post hash in post object to show them in the frontend list
-4) Add function to show all posts in the system (to be used like on a media scan page)
-5) We should include username as well in list of posts
+3) Add post hash in post object to show them in the frontend list + 
+4) Add function to show all posts in the system (to be used like on a media scan page) + 
+5) We should include username as well in list of posts + 
 ```
