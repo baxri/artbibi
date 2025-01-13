@@ -8,5 +8,9 @@
   "SocialMediaVerificationProxyModule#SocialMediaVerification": "0xC02F1de25Dc974f3C52d16F9757347C7fB852BE7",
   "SocialMediaVerificationProxyModule#TransparentUpgradeableProxy": "0x15eF93CA1ADceb6779bBD6A5A0A9a5b7Ec32f432",
   "SocialMediaVerificationProxyModule#ProxyAdmin": "0xf8173F36B93f891aB0222bF7D86F6EDc27086F47",
-  "SocialMediaVerificationModule#SocialMediaVerification": "0x15eF93CA1ADceb6779bBD6A5A0A9a5b7Ec32f432"
+  "SocialMediaVerificationModule#SocialMediaVerification": "0x15eF93CA1ADceb6779bBD6A5A0A9a5b7Ec32f432",
+  "SocialMediaVerificationProxyModuleV3#SocialMediaVerification": "0x74FAccdFfd0dded439730073A085De585096230c",
+  "SocialMediaVerificationProxyModuleV3#TransparentUpgradeableProxy": "0x7223B4B7d3089ef292B6FAdACeB081C033765c7B",
+  "SocialMediaVerificationProxyModuleV3#ProxyAdmin": "0x48F109694603152F8F078de497fF1747740e3f77",
+  "SocialMediaVerificationModuleV3#SocialMediaVerification": "0x7223B4B7d3089ef292B6FAdACeB081C033765c7B"
 }

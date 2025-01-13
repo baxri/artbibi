@@ -1,6 +1,6 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-export const proxyModule = buildModule("SocialMediaVerificationProxyModule", (m) => {
+export const proxyModule = buildModule("SocialMediaVerificationProxyModuleV3", (m) => {
   const proxyAdminOwner = m.getAccount(0);
 
   const demo = m.contract("SocialMediaVerification");
@@ -25,7 +25,7 @@ export const proxyModule = buildModule("SocialMediaVerificationProxyModule", (m)
   return { proxyAdmin, proxy };
 });
 
-const demoModule = buildModule("SocialMediaVerificationModule", (m) => {
+const demoModule = buildModule("SocialMediaVerificationModuleV3", (m) => {
   const { proxy, proxyAdmin } = m.useModule(proxyModule);
 
   const demo = m.contractAt("SocialMediaVerification", proxy);
