@@ -29,6 +29,9 @@ const demoModule = buildModule("SocialMediaVerificationModuleV3", (m) => {
   const { proxy, proxyAdmin } = m.useModule(proxyModule);
 
   const demo = m.contractAt("SocialMediaVerification", proxy);
+  
+  const verifierAddress = m.getAccount(0); 
+  m.call(demo, "setVerifier", [verifierAddress]);
 
   return { demo, proxy, proxyAdmin };
 });
